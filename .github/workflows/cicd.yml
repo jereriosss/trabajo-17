@@ -52,13 +52,17 @@ jobs:
       - name: Checkout del código (Historial completo para análisis)
         uses: actions/checkout@v4
         with:
-          fetch-depth: 0 # OBLIGATORIO: Descarga todo el historial de commits
+          fetch-depth: 0
 
-      - name: Escaneo de Secretos con Gitleaks Action
-        uses: gitleaks/gitleaks-action@v2
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          GITLEAKS_ENABLE_UPLOAD_ARTIFACT: false
+      - name: Instalación de Gitleaks CLI
+        run: |
+          wget https://github.com/gitleaks/gitleaks/releases/download/v8.18.2/gitleaks_8.18.2_linux_x64.tar.gz
+          tar -xzf gitleaks_8.18.2_linux_x64.tar.gz
+          sudo mv gitleaks /usr/local/bin/
+
+      - name: Escaneo Estricto de Secretos (Andon Cord)
+        run: |
+          gitleaks detect --source . -v
 
       - name: Resumen de Andon Cord en GitHub
         if: always()
